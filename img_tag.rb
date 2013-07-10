@@ -7,7 +7,7 @@
 # Documentation: https://github.com/robwierzbowski/jekyll-img-tag/readme.md
 # Issues: https://github.com/robwierzbowski/jekyll-img-tag/issues
 #
-# Syntax:  {% img [preset or dimensions] path/to/img.jpg [attr="value"] %}
+# Syntax:  {% img [preset or WxH] path/to/img.jpg [attr="value"] %}
 # Example: {% img poster.jpg alt="The strange case of Dr. Jekyll" %}
 #          {% img gallery poster.jpg alt="The strange case of Dr. Jekyll" class="gal-img" data-selected %}
 #          {% img 350xAUTO poster.jpg alt="The strange case of Dr. Jekyll" class="gal-img" data-selected %}
@@ -25,17 +25,16 @@ module Jekyll
 
     def initialize(tag_name, markup, tokens)
 
-      tag = /^(?:(?<preset>[^\s.:\/]+)\s+)?(?<image_src>[^\s]+\.[a-zA-Z0-9]{3,4})\s*(?<source_src>(?:(source_[^\s.:\/]+:\s+[^\s]+\.[a-zA-Z0-9]{3,4})\s*)+)?(?<html_attr>[\s\S]+)?$/.match(markup)
+      tag = /^(?:(?<preset>[^\s.:\/]+)\s+)?(?<image_src>[^\s]+\.[a-zA-Z0-9]{3,4})\s*(?<html_attr>[\s\S]+)?$/.match(markup)
 
-      raise "Picture Tag can't read this tag. Try {% picture [preset] path/to/img.jpg [source_key: path/to/alt-img.jpg] [attr=\"value\"] %}." unless tag
+      raise "Img Tag can't read this tag. Try {% img [preset or WxH] path/to/img.jpg [attr=\"value\"] %}." unless tag
 
-      @preset = tag[:preset] || 'default'
-      @image_src = tag[:image_src]
-      @source_src = if tag[:source_src]
-        Hash[ *tag[:source_src].gsub(/:/, '').split ]
+      @preset = if dim = /^(?<width>\d+|auto)(?:x)(?<height>\d+|auto)$/i.match(tag[:preset])
+        Hash[ :width, dim[:width], :height, dim[:height] ]
       else
-        {}
+        tag[:preset] || 'default'
       end
+      @image_src = tag[:image_src]
       @html_attr = if tag[:html_attr]
         Hash[ *tag[:html_attr].scan(/(?<attr>[^\s="]+)(?:="(?<value>[^"]+)")?\s?/).flatten ]
       else
@@ -49,27 +48,23 @@ module Jekyll
 
       # Gather settings
       site = context.registers[:site]
-      settings = site.config['picture']
-      markup = settings['markup'] || 'picturefill'
+      settings = site.config['img']
       image_source = settings['source_path'] || '.'
       image_dest = settings['output_path'] || File.join(image_source, 'generated')
 
       # Prevent Jekyll from erasing our copied files
       site.config['keep_files'] << image_dest unless site.config['keep_files'].include?(image_dest)
 
-      # Deep copy preset to sources for single instance manipulation
-      sources = Marshal.load(Marshal.dump(settings['presets'][@preset]))
+      ### RWRW Add preset / dimensions handling here
+
+      # Deep copy preset for single instance manipulation
+      preset = Marshal.load(Marshal.dump(settings['presets'][@preset]))
 
       # Process html attributes
-      html_attr = if sources['attr']
-        sources.delete('attr').merge!(@html_attr)
+      html_attr = if preset['attr']
+        preset.delete('attr').merge!(@html_attr)
       else
         @html_attr
-      end
-
-      if markup == 'picturefill'
-        html_attr['data-picture'] = nil
-        html_attr['data-alt'] = html_attr.delete('alt')
       end
 
       html_attr_string = ''
@@ -81,50 +76,10 @@ module Jekyll
         end
       }
 
-      # Prepare ppi variables
-      ppi = if sources['ppi'] then sources.delete('ppi').sort.reverse else nil end
-      ppi_sources = {}
-
-      # Store source keys in an array for ordering the sources object
-      source_keys = sources.keys
-
       # Raise some exceptions before we start expensive processing
-      raise "Picture Tag can't find this preset. Check picture: presets: #{@preset} in _config.yml for a list of presets." unless settings['presets'][@preset]
-      raise "Picture Tag can't find this preset source. Check picture: presets: #{@preset} in _config.yml for a list of sources." unless (@source_src.keys - source_keys).empty?
+      raise "Img Tag can't find this preset. Check img: presets: #{@preset} in _config.yml for a list of presets." unless settings['presets'][@preset]
 
       # Process sources
-      # Add image paths for each source
-      sources.each_key { |key|
-        sources[key][:src] = @source_src[key] || @image_src
-      }
-
-      # Construct ppi sources
-      # Generates -webkit-device-ratio and resolution: dpi media value for cross browser support
-      # Reference: http://www.brettjankord.com/2012/11/28/cross-browser-retinahigh-resolution-media-queries/
-      if ppi
-        sources.each { |key, value|
-          ppi.each { |p|
-            if p != 1
-              ppi_key = "#{key}-x#{p}"
-
-              ppi_sources[ppi_key] = {
-                'width' => if value['width'] then (value['width'].to_f * p).round else nil end,
-                'height' => if value['height'] then (value['height'].to_f * p).round else nil end,
-                'media' => if value['media']
-                  "#{value['media']} and (-webkit-min-device-pixel-ratio: #{p}), #{value['media']} and (min-resolution: #{(p * 96).round}dpi)"
-                else
-                  "(-webkit-min-device-pixel-ratio: #{p}), (min-resolution: #{(p * 96).to_i}dpi)"
-                end,
-                :src => value[:src]
-              }
-
-              # Add ppi_key to the source keys order
-              source_keys.insert(source_keys.index(key), ppi_key)
-            end
-          }
-        }
-      sources.merge!(ppi_sources)
-      end
 
       # Generate resized images
       sources.each { |key, source|
