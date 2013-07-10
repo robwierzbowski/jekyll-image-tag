@@ -3,7 +3,7 @@
 name: A responsive Jekyll blog
 pygments: true
 
-image:
+img:
   source_path: "assets/images/_fullsize"
   output_path: "assets/images/generated"
   presets:

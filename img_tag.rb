@@ -1,18 +1,16 @@
-# Title: Jekyll Picture Tag
+# Title: Jekyll Img Tag
 # Authors: Rob Wierzbowski : @robwierzbowski
-#          Justin Reese    : @justinxreese
-#          Welch Canavan   : @xiwcx
 #
-# Description: Easy responsive images for Jekyll.
+# Description: Easy dynamic images for Jekyll.
 #
-# Download: https://github.com/robwierzbowski/jekyll-picture-tag
-# Documentation: https://github.com/robwierzbowski/jekyll-picture-tag/readme.md
-# Issues: https://github.com/robwierzbowski/jekyll-picture-tag/issues
+# Download: https://github.com/robwierzbowski/jekyll-img-tag
+# Documentation: https://github.com/robwierzbowski/jekyll-img-tag/readme.md
+# Issues: https://github.com/robwierzbowski/jekyll-img-tag/issues
 #
-# Syntax:  {% picture [preset] path/to/img.jpg [source_key: path/to/alt-img.jpg] [attr=\"value\"] %}
-# Example: {% picture poster.jpg alt="The strange case of responsive images" %}
-#          {% picture gallery poster.jpg source_small: poster_closeup.jpg
-#             alt="The strange case of responsive images" class="gal-img" data-selected %}
+# Syntax:  {% img [preset or dimensions] path/to/img.jpg [attr="value"] %}
+# Example: {% img poster.jpg alt="The strange case of Dr. Jekyll" %}
+#          {% img gallery poster.jpg alt="The strange case of Dr. Jekyll" class="gal-img" data-selected %}
+#          {% img 350xAUTO poster.jpg alt="The strange case of Dr. Jekyll" class="gal-img" data-selected %}
 #
 # See the documentation for full configuration and usage instructions.
 
@@ -23,7 +21,7 @@ require 'mini_magick'
 
 module Jekyll
 
-  class Picture < Liquid::Tag
+  class Img < Liquid::Tag
 
     def initialize(tag_name, markup, tokens)
 
@@ -225,4 +223,4 @@ module Jekyll
   end
 end
 
-Liquid::Template.register_tag('picture', Jekyll::Picture)
+Liquid::Template.register_tag('img', Jekyll::Img)
