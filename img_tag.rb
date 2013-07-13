@@ -45,79 +45,54 @@ module Jekyll
       # Gather settings
       site = context.registers[:site]
       settings = site.config['img']
-      image_source = settings['source_path'] || '.'
-      image_dest = settings['output_path'] || File.join(image_source, 'generated')
 
-      # Prevent Jekyll from erasing our copied files
-      site.config['keep_files'] << image_dest unless site.config['keep_files'].include?(image_dest)
+      # Assign defaults if values are nil/false
+      settings['source'] ||= '.'
+      settings['output'] ||= 'generated'
 
-      ### RWRW Add preset / dimensions handling here
+      # Prevent Jekyll from erasing our generated files
+      site.config['keep_files'] << settings['output'] unless site.config['keep_files'].include?(settings['output'])
 
-      # Deep copy preset for single instance manipulation
-      preset = Marshal.load(Marshal.dump(settings['presets'][@preset]))
+      # Process preset
+      preset = if settings['presets'][@preset]
+        {
+          :width => settings['presets'][@preset]['width'],
+          :height => settings['presets'][@preset]['height'],
+          :src => @image_src
+        }
+      elsif dim = /^(?:(?<width>\d+)|auto)(?:x)(?:(?<height>\d+)|auto)$/i.match(@preset)
+        {
+          :width => dim['width'],
+          :height => dim['height'],
+          :src => @image_src
+        }
+      else
+        { :src => @image_src }
+      end
 
       # Process html attributes
       html_attr = if preset['attr']
-        preset.delete('attr').merge!(@html_attr)
+        preset['attr'].merge(@html_attr)
       else
         @html_attr
       end
 
-      html_attr_string = ''
-      html_attr.each { |key, value|
-        if value && value != 'nil'
-          html_attr_string += "#{key}=\"#{value}\" "
+      html_attr_string = html_attr.inject('') { |string, attrs|
+        if attrs[1]
+          string << "#{attrs[0]}=\"#{attrs[1]}\" "
         else
-          html_attr_string += "#{key} "
+          string << "#{attrs[0]} "
         end
       }
 
       # Raise some exceptions before we start expensive processing
-      raise "Img Tag can't find this preset. Check img: presets: #{@preset} in _config.yml for a list of presets." unless settings['presets'][@preset]
-
-      # Process sources
+      raise "Img Tag can't find this preset. Check img: presets in _config.yml for a list of presets." unless settings['presets'][@preset] || dim || @preset.nil?
 
       # Generate resized images
-      sources.each { |key, source|
-        sources[key][:generated_src] = generate_image(source, site.source, site.dest, image_source, image_dest)
-      }
+      generated_src = generate_image(preset, site.source, site.dest, settings['source'], settings['output'])
 
-      # Construct and return tag
-      if settings['markup'] == 'picturefill'
-
-        source_tags = ''
-        # Picturefill uses reverse source order
-        # Reference: https://github.com/scottjehl/picturefill/issues/79
-        source_keys.reverse.each { |source|
-          media = " data-media=\"#{sources[source]['media']}\"" unless source == 'source_default'
-          source_tags += "<span data-src=\"#{sources[source][:generated_src]}\"#{media}></span>\n"
-        }
-
-        # Note: we can't indent html output because markdown parsers will turn 4 spaces into code blocks
-        picture_tag = "<span #{html_attr_string}>\n"\
-                      "#{source_tags}"\
-                      "<noscript>\n"\
-                      "<img src=\"#{sources['source_default'][:generated_src]}\" alt=\"#{html_attr['data-alt']}\">\n"\
-                      "</noscript>\n"\
-                      "</span>\n"
-
-      elsif settings['markup'] == 'picture'
-
-        source_tags = ''
-        source_keys.each { |source|
-          media = " media=\"#{sources[source]['media']}\"" unless source == 'source_default'
-          source_tags += "<source src=\"#{sources[source][:generated_src]}\"#{media}>\n"
-        }
-
-        # Note: we can't indent html output because markdown parsers will turn 4 spaces into code blocks
-        picture_tag = "<picture #{html_attr_string}>\n"\
-                      "#{source_tags}"\
-                      "<p>#{html_attr['alt']}</p>\n"\
-                      "</picture>\n"
-      end
-
-        # Return the markup!
-        picture_tag
+      # Return the markup!
+      "<img src=\"#{generated_src}\" #{html_attr_string}>"
     end
 
     def generate_image(source, site_source, site_dest, image_source, image_dest)
