@@ -4,16 +4,16 @@ name: A responsive Jekyll blog
 pygments: true
 
 img:
-  source_path: "assets/images/_fullsize"
-  output_path: "assets/images/generated"
+  source: assets/images/_fullsize
+  output: generated
   presets:
     # Proportional preset
     users:
       attr:
-        class: "user-portrait"
-        itemprop: "image"
-      width: "350"
+        class: user-portrait
+        itemprop: image
+      width: 350
     # Scaled and cropped preset
     half:
-      width: "400"
-      height: "400"
+      width: 400
+      height: 400
