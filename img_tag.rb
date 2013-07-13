@@ -1,7 +1,7 @@
 # Title: Jekyll Img Tag
 # Authors: Rob Wierzbowski : @robwierzbowski
 #
-# Description: Easy dynamic images for Jekyll.
+# Description: Easy resizable images for Jekyll.
 #
 # Download: https://github.com/robwierzbowski/jekyll-img-tag
 # Documentation: https://github.com/robwierzbowski/jekyll-img-tag/readme.md
