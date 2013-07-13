@@ -29,11 +29,7 @@ module Jekyll
 
       raise "Img Tag can't read this tag. Try {% img [preset or WxH] path/to/img.jpg [attr=\"value\"] %}." unless tag
 
-      @preset = if dim = /^(?<width>\d+|auto)(?:x)(?<height>\d+|auto)$/i.match(tag[:preset])
-        Hash[ :width, dim[:width], :height, dim[:height] ]
-      else
-        tag[:preset] || 'default'
-      end
+      @preset = tag[:preset]
       @image_src = tag[:image_src]
       @html_attr = if tag[:html_attr]
         Hash[ *tag[:html_attr].scan(/(?<attr>[^\s="]+)(?:="(?<value>[^"]+)")?\s?/).flatten ]
