@@ -1,6 +1,6 @@
 # Sample Jekyll Image Tag settings
 
-name: A responsive Jekyll blog
+name: A Jekyll blog
 pygments: true
 
 img:
