@@ -95,56 +95,69 @@ module Jekyll
       "<img src=\"#{generated_src}\" #{html_attr_string}>"
     end
 
-    def generate_image(source, site_source, site_dest, image_source, image_dest)
+    def generate_image(preset, site_source, site_dest, image_source, image_dest)
 
-      raise "Sources must have at least one of width and height in the _config.yml." unless source['width'] || source['height']
+      image = MiniMagick::Image.open(File.join(site_source, image_source, preset[:src]))
+      digest = Digest::MD5.hexdigest(image.to_blob).slice!(0..5)
 
-      src_image = MiniMagick::Image.open(File.join(site_source, image_source, source[:src]))
-      src_digest = Digest::MD5.hexdigest(src_image.to_blob).slice!(0..5)
-      src_width = src_image[:width].to_f
-      src_height = src_image[:height].to_f
-      src_ratio = src_width/src_height
-      src_dir = File.dirname(source[:src])
-      ext = File.extname(source[:src])
-      src_name = File.basename(source[:src], ext)
+      image_dir = File.dirname(preset[:src])
+      ext = File.extname(preset[:src])
+      basename = File.basename(preset[:src], ext)
 
-      gen_width = if source['width'] then source['width'].to_f else src_ratio * source['height'].to_f end
-      gen_height = if source['height'] then source['height'].to_f else source['width'].to_f / src_ratio end
+      orig_width = image[:width].to_f
+      orig_height = image[:height].to_f
+      orig_ratio = orig_width/orig_height
+
+      gen_width = if preset[:width]
+        preset[:width].to_f
+      elsif preset[:height]
+        orig_ratio * preset[:height].to_f
+      else
+        orig_width
+      end
+      gen_height = if preset[:height]
+        preset[:height].to_f
+      elsif preset[:width]
+        orig_ratio * preset[:width].to_f
+      else
+        orig_height
+      end
       gen_ratio = gen_width/gen_height
 
       # Don't allow upscaling. If the image is smaller than the requested dimensions, recalculate.
-      if src_image[:width] < gen_width || src_image[:height] < gen_height
-        undersized = true
-        gen_width = if gen_ratio < src_ratio then src_height * gen_ratio else src_width end
-        gen_height = if gen_ratio > src_ratio then src_width/gen_ratio else src_height end
+      if orig_width < gen_width || orig_height < gen_height
+        undersize = true
+        gen_width = if orig_ratio < gen_ratio then orig_width else orig_height * gen_ratio end
+        gen_height = if orig_ratio > gen_ratio then orig_height else orig_width/gen_ratio end
       end
 
-      gen_name = "#{src_name}-#{gen_width.round}x#{gen_height.round}-#{src_digest}" + ext
-      gen_dest_path = File.join(site_dest, image_dest, src_dir)
-      gen_jekyll_path = Pathname.new(File.join('/', image_dest, src_dir, gen_name)).cleanpath
+      gen_name = "#{basename}-#{gen_width.round}x#{gen_height.round}-#{digest}#{ext}"
+      gen_dest_dir = File.join(site_dest, image_dest, image_dir)
+      gen_dest_file = File.join(gen_dest_dir, gen_name)
 
       # Generate resized files
-      unless File.exists?(File.join(gen_dest_path, gen_name))
+      unless File.exists?(gen_dest_file)
 
-        warn "Warning:".yellow + " #{source[:src]} is smaller than the requested output file. It will be resized without upscaling." unless not undersized
+        warn "Warning:".yellow + " #{source[:src]} is smaller than the requested output file. It will be resized without upscaling." if undersize
 
         #  If the destination directory doesn't exist, create it
-        FileUtils.mkdir_p(gen_dest_path) unless File.exist?(gen_dest_path)
+        FileUtils.mkdir_p(gen_dest_dir) unless File.exist?(gen_dest_dir)
 
         # Let people know their images are being generated
         puts "Generating #{gen_name}"
 
         # Scale and crop
-        src_image.combine_options do |i|
-          i.resize "#{gen_width.round}x#{gen_height.round}^"
+        image.combine_options do |i|
+          i.resize "#{gen_width}x#{gen_height}^"
           i.gravity "center"
-          i.crop "#{gen_width.round}x#{gen_height.round}+0+0"
+          i.crop "#{gen_width}x#{gen_height}+0+0"
         end
-        src_image.write File.join(gen_dest_path, gen_name)
+
+        image.write gen_dest_file
       end
 
-      # Return path for html
-      gen_jekyll_path
+      # Return path relative to the site root for html
+      Pathname.new(File.join('/', image_dest, image_dir, gen_name)).cleanpath
     end
   end
 end
