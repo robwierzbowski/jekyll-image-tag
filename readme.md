@@ -1,8 +1,8 @@
 # Jekyll Image Tag
 
-**Easy images for Jekyll.**
+**Better images for Jekyll.**
 
-Jekyll Image Tag is a full featured liquid tag for working with images on your [Jekyll](http://jekyllrb.com) static site. Use it to add classes, alt text, or any other attribute to an image's HTML, and automatically generate resized images from a tag argument or a little YAML configuration.
+Jekyll Image Tag is a full featured liquid tag for the [Jekyll](http://jekyllrb.com) static site generator. Use it to add classes, alt text, and any other attribute to an image's HTML, and automatically create resized images from a tag argument or a little YAML configuration.
 
 For responsive images in Jekyll, take a look at [Jekyll Picture Tag](https://github.com/robwierzbowski/jekyll-picture-tag).
 
@@ -41,7 +41,7 @@ Image dimensions follow the format `WIDTHxHEIGHT`. Each dimension can be either 
 
 #### path/to/img.jpg
 
-The base image.
+The base image. Can be a jpeg, png, or gif.
 
 #### attribute="value"
 
@@ -122,7 +122,7 @@ Report bugs and feature proposals in the [Github issue tracker](https://github.c
 
 ## Release History
  
-0.1.0, July 13, 2013: Initial release.
+0.1.0, July 14, 2013: Initial release.
 
 ## License
 
