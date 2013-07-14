@@ -138,7 +138,7 @@ module Jekyll
       # Generate resized files
       unless File.exists?(gen_dest_file)
 
-        warn "Warning:".yellow + " #{source[:src]} is smaller than the requested output file. It will be resized without upscaling." if undersize
+        warn "Warning:".yellow + " #{preset[:src]} is smaller than the requested output file. It will be resized without upscaling." if undersize
 
         #  If the destination directory doesn't exist, create it
         FileUtils.mkdir_p(gen_dest_dir) unless File.exist?(gen_dest_dir)
