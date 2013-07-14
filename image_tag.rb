@@ -1,16 +1,16 @@
-# Title: Jekyll Img Tag
+# Title: Jekyll Image Tag
 # Authors: Rob Wierzbowski : @robwierzbowski
 #
 # Description: Easy resizable images for Jekyll.
 #
-# Download: https://github.com/robwierzbowski/jekyll-img-tag
-# Documentation: https://github.com/robwierzbowski/jekyll-img-tag/readme.md
-# Issues: https://github.com/robwierzbowski/jekyll-img-tag/issues
+# Download: https://github.com/robwierzbowski/jekyll-image-tag
+# Documentation: https://github.com/robwierzbowski/jekyll-image-tag/readme.md
+# Issues: https://github.com/robwierzbowski/jekyll-image-tag/issues
 #
-# Syntax:  {% img [preset or WxH] path/to/img.jpg [attr="value"] %}
-# Example: {% img poster.jpg alt="The strange case of Dr. Jekyll" %}
-#          {% img gallery poster.jpg alt="The strange case of Dr. Jekyll" class="gal-img" data-selected %}
-#          {% img 350xAUTO poster.jpg alt="The strange case of Dr. Jekyll" class="gal-img" data-selected %}
+# Syntax:  {% image [preset or WxH] path/to/img.jpg [attr="value"] %}
+# Example: {% image poster.jpg alt="The strange case of Dr. Jekyll" %}
+#          {% image gallery poster.jpg alt="The strange case of Dr. Jekyll" class="gal-img" data-selected %}
+#          {% image 350xAUTO poster.jpg alt="The strange case of Dr. Jekyll" class="gal-img" data-selected %}
 #
 # See the documentation for full configuration and usage instructions.
 
@@ -21,13 +21,13 @@ require 'mini_magick'
 
 module Jekyll
 
-  class Img < Liquid::Tag
+  class Image < Liquid::Tag
 
     def initialize(tag_name, markup, tokens)
 
       tag = /^(?:(?<preset>[^\s.:\/]+)\s+)?(?<image_src>[^\s]+\.[a-zA-Z0-9]{3,4})\s*(?<html_attr>[\s\S]+)?$/.match(markup)
 
-      raise "Img Tag can't read this tag. Try {% img [preset or WxH] path/to/img.jpg [attr=\"value\"] %}." unless tag
+      raise "Image Tag can't read this tag. Try {% image [preset or WxH] path/to/img.jpg [attr=\"value\"] %}." unless tag
 
       @preset = tag[:preset]
       @image_src = tag[:image_src]
@@ -44,7 +44,7 @@ module Jekyll
 
       # Gather settings
       site = context.registers[:site]
-      settings = site.config['img']
+      settings = site.config['image']
 
       # Assign defaults if values are nil/false
       settings['source'] ||= '.'
@@ -86,7 +86,7 @@ module Jekyll
       }
 
       # Raise some exceptions before we start expensive processing
-      raise "Img Tag can't find this preset. Check img: presets in _config.yml for a list of presets." unless settings['presets'][@preset] || dim || @preset.nil?
+      raise "Image Tag can't find this preset. Check image: presets in _config.yml for a list of presets." unless settings['presets'][@preset] || dim || @preset.nil?
 
       # Generate resized images
       generated_src = generate_image(preset, site.source, site.dest, settings['source'], settings['output'])
@@ -162,4 +162,4 @@ module Jekyll
   end
 end
 
-Liquid::Template.register_tag('img', Jekyll::Img)
+Liquid::Template.register_tag('image', Jekyll::Image)

@@ -1,20 +1,20 @@
-# Jekyll Img Tag
+# Jekyll Image Tag
 
 **Easy images for Jekyll.**
 
-Jekyll Img Tag is a full featured liquid tag for working with images on your [Jekyll](http://jekyllrb.com) static site. Use it to add classes, alt text, or any other attribute to an image's HTML, and automatically generate resized images from a tag argument or a little YAML configuration.
+Jekyll Image Tag is a full featured liquid tag for working with images on your [Jekyll](http://jekyllrb.com) static site. Use it to add classes, alt text, or any other attribute to an image's HTML, and automatically generate resized images from a tag argument or a little YAML configuration.
 
 For responsive images in Jekyll, take a look at [Jekyll Picture Tag](https://github.com/robwierzbowski/jekyll-picture-tag).
 
 ## Installation
 
-Jekyll Img Tag requires [Jekyll](http://jekyllrb.com) `>=1.0`, [Minimagick](https://github.com/minimagick/minimagick) `>=3.6`, and [Imagemagick](http://www.imagemagick.org/script/index.php). 
+Jekyll Image Tag requires [Jekyll](http://jekyllrb.com) `>=1.0`, [Minimagick](https://github.com/minimagick/minimagick) `>=3.6`, and [Imagemagick](http://www.imagemagick.org/script/index.php). 
 
-Once you have the requirements installed, copy img_tag.rb into your Jekyll _plugins folder.
+Once you have the requirements installed, copy image_tag.rb into your Jekyll _plugins folder.
 
 ## Usage
 
-There are two parts to Jekyll Img Tag: 
+There are two parts to Jekyll Image Tag: 
 
 - [Liquid Tag](#liquid-tag)
 - [Configuration](#configuration)
@@ -22,14 +22,14 @@ There are two parts to Jekyll Img Tag:
 ### Liquid Tag
 
 ```
-{% img [preset or WxH] path/to/img.jpg [attr="value"] %}
+{% image [preset or WxH] path/to/img.jpg [attr="value"] %}
 ```
 
 The tag takes a mix of user input and pointers to configuration settings. 
 
-#### img
+#### image
 
-Tells Liquid this is a Jekyll Img Tag.
+Tells Liquid this is a Jekyll Image Tag.
 
 #### preset or WxH
 
@@ -49,12 +49,12 @@ Optionally specify any number of HTML attributes. An attribute set in a tag will
 
 ### Configuration
 
-Jekyll Img Tag stores settings in an `img` key in your _config.yml.
+Jekyll Image Tag stores settings in an `image` key in your _config.yml.
 
 **Example settings**
 
 ```yml
-img:
+image:
   source: assets/images/_fullsize
   output: generated
   presets:
@@ -78,7 +78,7 @@ Defaults to the site source directory.
 
 #### output
 
-Jekyll Img Tag generates resized images to the `output` directory in your compiled site. The organization of your `source` directory is maintained in the output directory. 
+Jekyll Image Tag generates resized images to the `output` directory in your compiled site. The organization of your `source` directory is maintained in the output directory. 
 
 Defaults to `{compiled Jekyll site}/generated`.
 
@@ -86,7 +86,7 @@ Defaults to `{compiled Jekyll site}/generated`.
 
 #### presets
 
-Presets contain reusable settings for a Jekyll Img Tag. 
+Presets contain reusable settings for a Jekyll Image Tag. 
 
 For example, a `users` preset might set image dimensions, a class, and some metadata attributes needed for all user pictures. If the design changes, you can edit the `users` preset and the new settings will apply to every tag that references it.
 
@@ -106,9 +106,9 @@ The same as [width and height](#preset-or-wxh) at the tag level, except that dim
 
 ## Managing Generated Images
 
-Jekyll Img Tag creates resized versions of your images when you build the site. It uses a smart caching system to speed up site compilation, and re-uses images as much as possible.
+Jekyll Image Tag creates resized versions of your images when you build the site. It uses a smart caching system to speed up site compilation, and re-uses images as much as possible.
 
-Try to use a base image that is larger than the largest resized image you need. Jekyll Img Tag will warn you if a base image is too small, and won't upscale images.
+Try to use a base image that is larger than the largest resized image you need. Jekyll Image Tag will warn you if a base image is too small, and won't upscale images.
 
 By specifying a `source` directory that is ignored by Jekyll you can prevent huge base images from being copied to the compiled site. For example, `source: assets/images/_fullsize` and `output: generated` will result in a compiled site that contains resized images but not the originals.
 
@@ -118,7 +118,7 @@ Resizing images is a good first step to improve performance, but you should stil
 
 ## Contribute
 
-Report bugs and feature proposals in the [Github issue tracker](https://github.com/robwierzbowski/jekyll-img-tag/issues). In lieu of a formal styleguide, take care to maintain the existing coding style. 
+Report bugs and feature proposals in the [Github issue tracker](https://github.com/robwierzbowski/jekyll-image-tag/issues). In lieu of a formal styleguide, take care to maintain the existing coding style. 
 
 ## Release History
  
