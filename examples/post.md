@@ -9,11 +9,11 @@ Thinking he had a nightmare, I awakened him. He said angrily: 'Why did you wake 
 
 ### Variations
 
-With a preset:
+With a preset:  
 {% img gallery dream.jpg alt="A night scene" data-downloadable="true" %}
 
-With width and height dimensions
+With width and height dimensions:  
 {% img 750x500 dream.jpg alt="A night scene" data-downloadable="true" %}
 
-With relative width and height dimensions
+With proportional resizing:  
 {% img 700xAUTO dream.jpg alt="A night scene" data-downloadable="true" %}
