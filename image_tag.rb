@@ -85,7 +85,7 @@ module Jekyll
       }
 
       # Raise some exceptions before we start expensive processing
-      raise "Image Tag can't find this preset. Check image: presets in _config.yml for a list of presets." unless preset || dim ||  markup[:preset].nil?
+      raise "Image Tag can't find the \"#{markup[:preset]}\" preset. Check image: presets in _config.yml for a list of presets." unless preset || dim ||  markup[:preset].nil?
 
       # Generate resized images
       generated_src = generate_image(instance, site.source, site.dest, settings['source'], settings['output'])
