@@ -135,7 +135,8 @@ Resizing images is a good first step to improve performance, but you should stil
 Report bugs and feature proposals in the [Github issue tracker](https://github.com/robwierzbowski/jekyll-image-tag/issues). In lieu of a formal styleguide, take care to maintain the existing coding style. 
 
 ## Release History
- 
+
+0.1.1, July 17, 2013: Refactor, add Liquid parsing.  
 0.1.0, July 14, 2013: Initial release.
 
 ## License
