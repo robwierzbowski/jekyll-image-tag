@@ -8,7 +8,7 @@ For responsive images in Jekyll, take a look at [Jekyll Picture Tag](https://git
 
 ## Installation
 
-Jekyll Image Tag requires [Jekyll](http://jekyllrb.com) `>=1.0`, [Minimagick](https://github.com/minimagick/minimagick) `>=3.6`, and [Imagemagick](http://www.imagemagick.org/script/index.php). 
+Jekyll Image Tag requires [Jekyll](http://jekyllrb.com) `>=1.0`, [Minimagick](https://github.com/minimagick/minimagick) `>=3.6`, and [Imagemagick](http://www.imagemagick.org/script/index.php).
 
 Once you have the requirements installed, copy image_tag.rb into your Jekyll _plugins folder.
 
@@ -103,6 +103,20 @@ An attribute set in a tag will override the same attribute set in a preset.
 #### width and height
 
 The same as [width and height](#preset-or-wxh) at the tag level, except that dimensions with an `AUTO` value are omitted. Set a single value to scale the image proportionately. Set both to scale and crop.
+
+## Using Liquid variables and JavaScript templating
+
+You can use liquid variables in an image tag:
+
+```html
+{% image {{ post.featured_image }} alt="our project" %}
+```
+
+If you're using a JavaScript templating library such as Handlebars.js, the templating expression's opening braces must be escaped with backslashes like `\{\{` or `\{\%`. They'll be output as normal `{{ }}` expressions in HTML:
+
+```
+{% image {{ post.featured_image }} alt="\{\{ user_name }}" %}.
+```
 
 ## Managing Generated Images
 
