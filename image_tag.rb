@@ -24,57 +24,56 @@ module Jekyll
   class Image < Liquid::Tag
 
     def initialize(tag_name, markup, tokens)
-
-      tag = /^(?:(?<preset>[^\s.:\/]+)\s+)?(?<image_src>[^\s]+\.[a-zA-Z0-9]{3,4})\s*(?<html_attr>[\s\S]+)?$/.match(markup)
-
-      raise "Image Tag can't read this tag. Try {% image [preset or WxH] path/to/img.jpg [attr=\"value\"] %}." unless tag
-
-      @preset = tag[:preset]
-      @image_src = tag[:image_src]
-      @html_attr = if tag[:html_attr]
-        Hash[ *tag[:html_attr].scan(/(?<attr>[^\s="]+)(?:="(?<value>[^"]+)")?\s?/).flatten ]
-      else
-        {}
-      end
-
+      @markup = markup
       super
     end
 
     def render(context)
 
+      # Render any liquid variables in tag arguments and unescape template code
+      @markup = Liquid::Template.parse(@markup).render(context).gsub(/\\\{\\\{|\\\{\\%/, '\{\{' => '{{', '\{\%' => '{%')
+
       # Gather settings
       site = context.registers[:site]
       settings = site.config['image']
+      markup = /^(?:(?<preset>[^\s.:\/]+)\s+)?(?<image_src>[^\s]+\.[a-zA-Z0-9]{3,4})\s*(?<html_attr>[\s\S]+)?$/.match(@markup)
+      preset = settings['presets'][ markup[:preset] ]
 
-      # Assign defaults if values are nil/false
+      raise "Image Tag can't read this tag. Try {% image [preset or WxH] path/to/img.jpg [attr=\"value\"] %}." unless markup
+
+      # Assign defaults
       settings['source'] ||= '.'
       settings['output'] ||= 'generated'
 
       # Prevent Jekyll from erasing our generated files
       site.config['keep_files'] << settings['output'] unless site.config['keep_files'].include?(settings['output'])
 
-      # Process preset
-      preset = if settings['presets'][@preset]
+      # Process instance
+      instance = if preset
         {
-          :width => settings['presets'][@preset]['width'],
-          :height => settings['presets'][@preset]['height'],
-          :src => @image_src
+          :width => preset['width'],
+          :height => preset['height'],
+          :src => markup[:image_src]
         }
-      elsif dim = /^(?:(?<width>\d+)|auto)(?:x)(?:(?<height>\d+)|auto)$/i.match(@preset)
+      elsif dim = /^(?:(?<width>\d+)|auto)(?:x)(?:(?<height>\d+)|auto)$/i.match(markup[:preset])
         {
           :width => dim['width'],
           :height => dim['height'],
-          :src => @image_src
+          :src => markup[:image_src]
         }
       else
-        { :src => @image_src }
+        { :src => markup[:image_src] }
       end
 
       # Process html attributes
-      html_attr = if preset['attr']
-        preset['attr'].merge(@html_attr)
+      html_attr = if markup[:html_attr]
+        Hash[ *markup[:html_attr].scan(/(?<attr>[^\s="]+)(?:="(?<value>[^"]+)")?\s?/).flatten ]
       else
-        @html_attr
+        {}
+      end
+
+      if preset && preset['attr']
+        html_attr = preset['attr'].merge(html_attr)
       end
 
       html_attr_string = html_attr.inject('') { |string, attrs|
@@ -86,10 +85,10 @@ module Jekyll
       }
 
       # Raise some exceptions before we start expensive processing
-      raise "Image Tag can't find this preset. Check image: presets in _config.yml for a list of presets." unless settings['presets'][@preset] || dim || @preset.nil?
+      raise "Image Tag can't find this preset. Check image: presets in _config.yml for a list of presets." unless preset || dim ||  markup[:preset].nil?
 
       # Generate resized images
-      generated_src = generate_image(preset, site.source, site.dest, settings['source'], settings['output'])
+      generated_src = generate_image(instance, site.source, site.dest, settings['source'], settings['output'])
 
       # Return the markup!
       "<img src=\"#{generated_src}\" #{html_attr_string}>"
@@ -118,7 +117,7 @@ module Jekyll
       gen_height = if preset[:height]
         preset[:height].to_f
       elsif preset[:width]
-        orig_ratio * preset[:width].to_f
+        preset[:width].to_f / orig_ratio
       else
         orig_height
       end
