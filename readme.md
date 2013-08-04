@@ -136,6 +136,7 @@ Report bugs and feature proposals in the [Github issue tracker](https://github.c
 
 ## Release History
 
+0.1.2, Aug 4, 2013: Bugfixes.  
 0.1.1, July 17, 2013: Refactor, add Liquid parsing.  
 0.1.0, July 14, 2013: Initial release.
 
