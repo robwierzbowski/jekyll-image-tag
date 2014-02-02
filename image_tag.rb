@@ -131,6 +131,13 @@ module Jekyll
       gen_dest_dir = File.join(site_source, image_dest, image_dir)
       gen_dest_file = File.join(gen_dest_dir, gen_name)
 
+      if instance[:src].include?("/")
+        gen_path = instance[:src].split('/')
+        gen_path.pop
+        gen_path = gen_path.join('/')
+        gen_name = gen_path + '/' + gen_name
+      end
+
       site.static_files << Jekyll::StaticFile.new(site, site.source, image_dest, gen_name)
 
       # Generate resized files
