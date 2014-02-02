@@ -45,9 +45,6 @@ module Jekyll
       settings['source'] ||= '.'
       settings['output'] ||= 'generated'
 
-      # Prevent Jekyll from erasing our generated files
-      site.config['keep_files'] << settings['output'] unless site.config['keep_files'].include?(settings['output'])
-
       # Process instance
       instance = if preset
         {
@@ -88,13 +85,13 @@ module Jekyll
       raise "Image Tag can't find the \"#{markup[:preset]}\" preset. Check image: presets in _config.yml for a list of presets." unless preset || dim ||  markup[:preset].nil?
 
       # Generate resized images
-      generated_src = generate_image(instance, site.source, site.dest, settings['source'], settings['output'])
+      generated_src = generate_image(instance, site.source, site.dest, settings['source'], settings['output'], site)
 
       # Return the markup!
       "<img src=\"#{generated_src}\" #{html_attr_string}>"
     end
 
-    def generate_image(instance, site_source, site_dest, image_source, image_dest)
+    def generate_image(instance, site_source, site_dest, image_source, image_dest, site)
 
       image = MiniMagick::Image.open(File.join(site_source, image_source, instance[:src]))
       digest = Digest::MD5.hexdigest(image.to_blob).slice!(0..5)
@@ -131,8 +128,17 @@ module Jekyll
       end
 
       gen_name = "#{basename}-#{gen_width.round}x#{gen_height.round}-#{digest}#{ext}"
-      gen_dest_dir = File.join(site_dest, image_dest, image_dir)
+      gen_dest_dir = File.join(site_source, image_dest, image_dir)
       gen_dest_file = File.join(gen_dest_dir, gen_name)
+
+      if instance[:src].include?("/")
+        gen_path = instance[:src].split('/')
+        gen_path.pop
+        gen_path = gen_path.join('/')
+        gen_name = gen_path + '/' + gen_name
+      end
+
+      site.static_files << Jekyll::StaticFile.new(site, site.source, image_dest, gen_name)
 
       # Generate resized files
       unless File.exists?(gen_dest_file)
