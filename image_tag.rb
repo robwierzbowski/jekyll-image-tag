@@ -89,6 +89,9 @@ module Jekyll
 
       # Generate resized images
       generated_src = generate_image(instance, site.source, site.dest, settings['source'], settings['output'])
+      unless generated_src
+        return
+      end
 
       # Return the markup!
       "<img src=\"#{generated_src}\" #{html_attr_string}>"
@@ -96,7 +99,13 @@ module Jekyll
 
     def generate_image(instance, site_source, site_dest, image_source, image_dest)
 
-      image = MiniMagick::Image.open(File.join(site_source, image_source, instance[:src]))
+      image_source_path = File.join(site_source, image_source, instance[:src])
+      unless File.exists?image_source_path
+        puts "Missing: #{image_source_path}"
+        return false
+      end
+
+      image = MiniMagick::Image.open(image_source_path)
       digest = Digest::MD5.hexdigest(image.to_blob).slice!(0..5)
 
       image_dir = File.dirname(instance[:src])
