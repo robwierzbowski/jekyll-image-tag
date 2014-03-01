@@ -89,6 +89,11 @@ module Jekyll
 
       # Generate resized images
       generated_src = generate_image(instance, site.source, site.dest, settings['source'], settings['output'])
+      
+      # Add url prefix if defined. The prefix should be without trailing slash
+      if settings['url_prefix']
+        generated_src = settings['url_prefix'] + generated_src.to_s
+      end
 
       # Return the markup!
       "<img src=\"#{generated_src}\" #{html_attr_string}>"
