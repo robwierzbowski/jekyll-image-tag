@@ -93,8 +93,13 @@ module Jekyll
         return
       end
 
-      # Return the markup!
-      "<img src=\"#{generated_src}\" #{html_attr_string}>"
+      if html_attr.include? 'url'
+        # Return the url!
+        return generated_src
+      else
+        # Return the markup!
+        return "<img src=\"#{generated_src}\" #{html_attr_string}>"
+      end
     end
 
     def generate_image(instance, site_source, site_dest, image_source, image_dest)
