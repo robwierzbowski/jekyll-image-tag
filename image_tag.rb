@@ -93,6 +93,7 @@ module Jekyll
         return
       end
 
+      generated_src = File.join(site.baseurl, generated_src) unless site.baseurl.empty?
       # Return the markup!
       "<img src=\"#{generated_src}\" #{html_attr_string}>"
     end
