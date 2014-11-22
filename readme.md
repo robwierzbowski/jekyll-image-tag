@@ -6,6 +6,10 @@ Jekyll Image Tag is a full featured liquid tag for images in the [Jekyll](http:/
 
 For responsive images in Jekyll, take a look at [Jekyll Picture Tag](https://github.com/robwierzbowski/jekyll-picture-tag).
 
+## Semi-deprecated
+
+I'm not working on many jekyll projects anymore, so have no reason to use this code. If you find this code useful feel free to ping me and I'll hand the repo over to you.
+
 ## Installation
 
 Jekyll Image Tag requires [Jekyll](http://jekyllrb.com) `>=1.0`, [Minimagick](https://github.com/minimagick/minimagick) `>=3.6`, and [Imagemagick](http://www.imagemagick.org/script/index.php).
